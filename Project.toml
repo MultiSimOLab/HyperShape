@@ -1,0 +1,13 @@
+name = "HyperShape"
+uuid = "1a07404e-cd44-4b01-9b9c-59424ef2e75e"
+authors = ["MultiSimoLAB"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
