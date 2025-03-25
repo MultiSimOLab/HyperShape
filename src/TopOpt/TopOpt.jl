@@ -1,6 +1,6 @@
 module TopOpt
 using DrWatson
-using Gridap.FESpaces
+using Gridap.FESpaces, Gridap.MultiField
 
 using Gridap.Helpers
 using BlockArrays
