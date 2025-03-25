@@ -74,7 +74,7 @@ struct FEFunctional{A}
     new{A}(J, DJ, caches)
   end
 
-  function FEFunctional(J::Function, DJ::Vector{<:Function}, uh, ph, ϕh::MultiFieldFEFunction)
+  function FEFunctional(J::Function, DJ::Function, uh, ph, ϕh::MultiFieldFEFunction)
     Vϕ = ϕh.fe_space
     dj = mortar(map((x,y)->assemble_vector(x, y),DJ_(uh, ph, ϕh),VρL2))
     Jadim = [1.0]
