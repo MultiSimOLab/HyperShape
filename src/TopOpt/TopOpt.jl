@@ -3,7 +3,7 @@ using DrWatson
 using Gridap.FESpaces
 
 using Gridap.Helpers
-
+using BlockArrays
 
 include("FEFunctionals.jl")
 export FEFunctional

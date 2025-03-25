@@ -64,7 +64,7 @@ struct FEFunctional{A}
   J::Function
   DJ::Function
   caches::A
-  function FEFunctional(J::Function, DJ::Function, uh, ph, ϕh)
+  function FEFunctional(J::Function, DJ::Function, uh, ph, ϕh::SingleFieldFEFunction)
     Vϕ = ϕh.fe_space
     dj = assemble_vector(DJ(uh, ph, ϕh), Vϕ)
     Jadim = [1.0]
@@ -73,6 +73,17 @@ struct FEFunctional{A}
     A = typeof(caches)
     new{A}(J, DJ, caches)
   end
+
+  function FEFunctional(J::Function, DJ::Vector{<:Function}, uh, ph, ϕh::MultiFieldFEFunction)
+    Vϕ = ϕh.fe_space
+    dj = mortar(map((x,y)->assemble_vector(x, y),DJ_(uh, ph, ϕh),VρL2))
+    Jadim = [1.0]
+    caches = (uh, ph, ϕh, Vϕ, dj, Jadim)
+    # falta meter en cache vector x de derivadas
+    A = typeof(caches)
+    new{A}(J, DJ, caches)
+  end
+
 end
 
 function adimensionalize!(func::FEFunctional, Jadim)
