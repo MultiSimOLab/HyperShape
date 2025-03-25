@@ -76,7 +76,7 @@ struct FEFunctional{A}
 
   function FEFunctional(J::Function, DJ::Function, uh, ph, ϕh::MultiFieldFEFunction)
     Vϕ = ϕh.fe_space
-    dj = mortar(map((x,y)->assemble_vector(x, y),DJ(uh, ph, ϕh),VρL2))
+    dj = mortar(map((x,y)->assemble_vector(x, y),DJ(uh, ph, ϕh),Vϕ))
     Jadim = [1.0]
     caches = (uh, ph, ϕh, Vϕ, dj, Jadim)
     # falta meter en cache vector x de derivadas
