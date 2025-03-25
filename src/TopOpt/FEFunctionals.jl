@@ -60,18 +60,18 @@ get_state(obj::OptimFEVariable) = obj.func
 #                 FEFunctional
 #*******************************************************************************	
 
-struct FEFunctional{A}
+struct FEFunctional{A,B}
   J::Function
   DJ::Function
-  caches::A
+  caches::B
   function FEFunctional(J::Function, DJ::Function, uh, ph, ϕh::SingleFieldFEFunction)
     Vϕ = ϕh.fe_space
     dj = assemble_vector(DJ(uh, ph, ϕh), Vϕ)
     Jadim = [1.0]
     caches = (uh, ph, ϕh, Vϕ, dj, Jadim)
     # falta meter en cache vector x de derivadas
-    A = typeof(caches)
-    new{A}(J, DJ, caches)
+    B= typeof(caches)
+    new{SingleFieldFEFunction,B}(J, DJ, caches)
   end
 
   function FEFunctional(J::Function, DJ::Function, uh, ph, ϕh::MultiFieldFEFunction)
@@ -80,11 +80,12 @@ struct FEFunctional{A}
     Jadim = [1.0]
     caches = (uh, ph, ϕh, Vϕ, dj, Jadim)
     # falta meter en cache vector x de derivadas
-    A = typeof(caches)
-    new{A}(J, DJ, caches)
+    B= typeof(caches)
+    new{MultiFieldFEFunction,B}(J, DJ, caches)
   end
 
 end
+
 
 function adimensionalize!(func::FEFunctional, Jadim)
   func.caches[6][1] = Jadim
