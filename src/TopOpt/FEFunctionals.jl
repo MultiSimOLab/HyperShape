@@ -98,11 +98,21 @@ function evaluate_objective(func::FEFunctional)
   jadim = Jadim[1]
   sum(func.J(uh, ϕh)) / jadim
 end
+ 
 
-function evaluate_derivative!(func::FEFunctional)
+function evaluate_derivative!(func::FEFunctional{T, S}) where {T<:SingleFieldFEFunction, S}
   uh, ph, ϕh, Vϕ, dj, Jadim = func.caches
   jadim = Jadim[1]
   assemble_vector!(func.DJ(uh, ph, ϕh), dj, Vϕ)
+  dj ./= jadim
+  return dj
+end
+
+
+function evaluate_derivative!(func::FEFunctional{T, S}) where {T<:MultiFieldFEFunction, S}
+  uh, ph, ϕh, Vϕ, dj, Jadim = func.caches
+  jadim = Jadim[1]
+  dj .= mortar(map((x,y)->assemble_vector(x, y),func.DJ(uh, ph, ϕh),Vϕ))
   dj ./= jadim
   return dj
 end
