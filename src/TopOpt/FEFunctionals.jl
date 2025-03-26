@@ -64,24 +64,24 @@ struct FEFunctional{A,B}
   J::Function
   DJ::Function
   caches::B
-  function FEFunctional(J::Function, DJ::Function, uh, ph, ϕh::SingleFieldFEFunction)
+  function FEFunctional(J::Function, DJ::Function, uh, ph, ϕh)
     Vϕ = ϕh.fe_space
     dj = assemble_vector(DJ(uh, ph, ϕh), Vϕ)
     Jadim = [1.0]
     caches = (uh, ph, ϕh, Vϕ, dj, Jadim)
     # falta meter en cache vector x de derivadas
     B= typeof(caches)
-    new{SingleFieldFEFunction,B}(J, DJ, caches)
+    new{Function,B}(J, DJ, caches)
   end
 
-  function FEFunctional(J::Function, DJ::Function, uh, ph, ϕh::MultiFieldFEFunction)
-    Vϕ = ϕh.fe_space
-    dj = mortar(map((x,y)->assemble_vector(x, y),DJ(uh, ph, ϕh),Vϕ))
+  function FEFunctional(J::Function, DJ::Vector{<:Function}, uh, ph, ϕh::Vector{<:FEFunction})
+    Vϕ = ϕh[1].fe_space
+    dj = mortar(map((x,y)->assemble_vector(x, y.fe_space),DJ(uh, ph, ϕh),ϕh))
     Jadim = [1.0]
     caches = (uh, ph, ϕh, Vϕ, dj, Jadim)
     # falta meter en cache vector x de derivadas
     B= typeof(caches)
-    new{MultiFieldFEFunction,B}(J, DJ, caches)
+    new{Vector{<:Function},B}(J, DJ, caches)
   end
 
 end
@@ -99,8 +99,7 @@ function evaluate_objective(func::FEFunctional)
   sum(func.J(uh, ϕh)) / jadim
 end
  
-
-function evaluate_derivative!(func::FEFunctional{T, S}) where {T<:SingleFieldFEFunction, S}
+function evaluate_derivative!(func::FEFunctional{T, S}) where {T<:Function, S}
   uh, ph, ϕh, Vϕ, dj, Jadim = func.caches
   jadim = Jadim[1]
   assemble_vector!(func.DJ(uh, ph, ϕh), dj, Vϕ)
@@ -108,11 +107,10 @@ function evaluate_derivative!(func::FEFunctional{T, S}) where {T<:SingleFieldFEF
   return dj
 end
 
-
-function evaluate_derivative!(func::FEFunctional{T, S}) where {T<:MultiFieldFEFunction, S}
-  uh, ph, ϕh, Vϕ, dj, Jadim = func.caches
+function evaluate_derivative!(func::FEFunctional{T, S}) where {T<:Vector{<:Function}, S}
+  uh, ph, ϕh, _, dj, Jadim = func.caches
   jadim = Jadim[1]
-  dj .= mortar(map((x,y)->assemble_vector(x, y),func.DJ(uh, ph, ϕh),Vϕ))
+  dj .= mortar(map((x,y)->assemble_vector(x, y.fe_space),func.DJ(uh, ph, ϕh),ϕh))
   dj ./= jadim
   return dj
 end
