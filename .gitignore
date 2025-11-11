@@ -6,3 +6,6 @@
 /docs/build/
 /test/
 /.vscode
+data/sims/
+**/.DS_Store
+ 
