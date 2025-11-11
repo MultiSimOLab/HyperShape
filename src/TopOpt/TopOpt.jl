@@ -17,6 +17,5 @@ export evaluate_objective
 export evaluate!
 export get_space
 export get_derivative
-# include("Optimizers.jl")
 
 end
